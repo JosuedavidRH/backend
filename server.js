@@ -5,12 +5,17 @@ const bodyParser = require('body-parser');
 const db = require('./db');
 
 const app = express();
-app.use(cors());
+
+// ✅ Permitir SOLO tu dominio frontend
+app.use(cors({
+  origin: 'https://frontend.tiendasbuenapaga.com'
+}));
+
 app.use(bodyParser.json());
 
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
-  
+
   db.query(
     'SELECT * FROM users WHERE username = ? AND password = ?',
     [username, password],
