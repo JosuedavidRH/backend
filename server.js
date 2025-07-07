@@ -1,4 +1,3 @@
-// backend/server.js
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -6,9 +5,10 @@ const db = require('./db');
 
 const app = express();
 
-// ✅ Permitir SOLO tu dominio frontend
+// ✅ Permitir múltiples orígenes (frontend)
 app.use(cors({
-  origin: 'https://frontend.tiendasbuenapaga.com'
+  origin: ['https://frontend.tiendasbuenapaga.com', 'https://frontend-cyan-three-13.vercel.app'],
+  credentials: true
 }));
 
 app.use(bodyParser.json());
@@ -31,6 +31,8 @@ app.post('/api/login', (req, res) => {
   );
 });
 
-app.listen(5000, () => {
-  console.log('Servidor backend corriendo en http://localhost:5000');
+// ✅ Puerto dinámico para Render
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Servidor backend corriendo en el puerto ${PORT}`);
 });
