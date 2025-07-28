@@ -66,7 +66,7 @@ app.post('/api/register', (req, res) => {
 
 // ✅ Vincular rutas adicionales
 app.use('/api/realTime', realtimeRoutes);
-app.use('/api/guardar', guardarNumero);
+app.use('/api/guardar_numero', guardarNumero);
 app.use('/api/validar', validarQR);
 
 // Puerto dinámico
