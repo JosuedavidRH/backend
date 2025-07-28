@@ -1,15 +1,14 @@
 const express = require('express');
-const fs = require('fs');
 const db = require('./db'); // Reutilizamos la conexión exportada
 
 const router = express.Router();
 
-// ✅ Función de log (respetada)
+// ✅ Función de log: solo muestra en consola (Render no permite escribir en disco)
 function logMsg(msg) {
-    fs.appendFileSync('log_insert.txt', `${new Date().toISOString()} - ${msg}\n`);
+    console.log(`${new Date().toISOString()} - ${msg}`);
 }
 
-// ✅ Ruta para guardar datos (misma lógica, solo adaptada al router)
+// ✅ Ruta para guardar datos (misma lógica original)
 router.post('/', (req, res) => {
     const { numero_apto, codigo_generado } = req.body;
 
@@ -38,5 +37,4 @@ process.on('uncaughtException', (err) => {
     logMsg(`🚨 Excepción no capturada: ${err.message}`);
 });
 
-// ✅ Exportar el router (no lanzar app.listen aquí)
 module.exports = router;
