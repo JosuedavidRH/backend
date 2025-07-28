@@ -9,9 +9,9 @@ const router = express.Router();
 router.get('/:userId', (req, res) => {
   const { userId } = req.params;
 
-  db.query('SELECT * FROM realTime WHERE user_id = ?', [userId], (err, results) => {
+  db.query('SELECT * FROM realtime WHERE user_id = ?', [userId], (err, results) => {
     if (err) {
-      console.error('❌ Error al obtener datos de realTime:', err);
+      console.error('❌ Error al obtener datos de realtime:', err);
       return res.status(500).json({ success: false, error: err.message });
     }
     res.json({ success: true, data: results[0] || null });
@@ -30,7 +30,7 @@ router.put('/:userId', (req, res) => {
   } = req.body;
 
   const sql = `
-    UPDATE realTime SET 
+    UPDATE realtime SET 
       statusActual = ?, 
       temporizadorPrincipal = ?, 
       temporizadorFactura1 = ?, 
@@ -49,7 +49,7 @@ router.put('/:userId', (req, res) => {
     userId
   ], (err, result) => {
     if (err) {
-      console.error('❌ Error al actualizar realTime:', err);
+      console.error('❌ Error al actualizar realtime:', err);
       return res.status(500).json({ success: false, error: err.message });
     }
     res.json({ success: true, message: 'Temporizadores actualizados correctamente' });
@@ -61,7 +61,7 @@ router.post('/temporizador', (req, res) => {
   const { userId, temporizadorPrincipal } = req.body;
 
   const sql = `
-    INSERT INTO realTime (user_id, temporizadorPrincipal)
+    INSERT INTO realtime (user_id, temporizadorPrincipal)
     VALUES (?, ?)
     ON DUPLICATE KEY UPDATE temporizadorPrincipal = VALUES(temporizadorPrincipal)
   `;
