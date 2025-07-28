@@ -3,10 +3,13 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const db = require('./db');
+const guardarNumero = require('./guardar_numero');
+const realtime = require('./realTime');
+const validarQR = require('./validar_qr');
 
 const app = express();
 
-// ✅ Permitir múltiples orígenes (frontend en Vercel, etc.)
+// Permitir múltiples orígenes (como el frontend en Vercel)
 app.use(cors({
   origin: ['https://kiosko-seven.vercel.app'],
   credentials: true
@@ -61,7 +64,12 @@ app.post('/api/register', (req, res) => {
   );
 });
 
-// ✅ Puerto dinámico para Render
+// ✅ Vincular rutas adicionales
+app.use('/api/guardar', guardarNumero);
+app.use('/api/realtime', realtime);
+app.use('/api/validar', validarQR);
+
+// Puerto dinámico
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Servidor backend corriendo en el puerto ${PORT}`);
