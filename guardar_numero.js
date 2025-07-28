@@ -1,30 +1,16 @@
-
 const express = require('express');
 const fs = require('fs');
-const cors = require('cors');
 const db = require('./db'); // Reutilizamos la conexión exportada
 
-const app = express();
+const router = express.Router();
 
-// ✅ Puerto dinámico para Render
-const PORT = process.env.PORT || 3001;
-
-// ✅ Permitir múltiples orígenes (como tu frontend en Vercel)
-app.use(cors({
-    origin: ['https://kiosko-seven.vercel.app'],
-    credentials: true
-}));
-
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
-// ✅ Función de log
+// ✅ Función de log (respetada)
 function logMsg(msg) {
     fs.appendFileSync('log_insert.txt', `${new Date().toISOString()} - ${msg}\n`);
 }
 
-// ✅ Ruta para guardar datos
-app.post('/guardar_numero', (req, res) => {
+// ✅ Ruta para guardar datos (misma lógica, solo adaptada al router)
+router.post('/', (req, res) => {
     const { numero_apto, codigo_generado } = req.body;
 
     const postData = JSON.stringify(req.body);
@@ -47,12 +33,10 @@ app.post('/guardar_numero', (req, res) => {
     });
 });
 
-// ✅ Seguridad: manejo de errores globales
+// ✅ Seguridad: manejo de errores globales (respetado)
 process.on('uncaughtException', (err) => {
     logMsg(`🚨 Excepción no capturada: ${err.message}`);
 });
 
-// ✅ Inicio del servidor
-app.listen(PORT, () => {
-    console.log(`🚀 Servidor backend corriendo en el puerto ${PORT}`);
-});
+// ✅ Exportar el router (no lanzar app.listen aquí)
+module.exports = router;

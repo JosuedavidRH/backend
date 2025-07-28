@@ -1,10 +1,9 @@
 const express = require('express');
-const db = require('./db'); // Aquí se espera que ya uses mysql2 en db.js
-const app = express();
-const port = 3000;
+const db = require('./db');
+const router = express.Router();
 
 // Ruta GET para validar y eliminar QR
-app.get('/validar_qr', (req, res) => {
+router.get('/', (req, res) => {
     res.set('Cache-Control', 'no-cache, must-revalidate');
     res.set('Expires', 'Sat, 1 Jan 2000 00:00:00 GMT');
 
@@ -17,9 +16,12 @@ app.get('/validar_qr', (req, res) => {
 
     const [numero_apto, codigo_qr] = id.split('|');
 
-    const sql = "DELETE FROM registros WHERE numero_apto = ? AND codigo_qr = ?";
+    if (!/^\d{6}$/.test(codigo_qr)) {
+        res.send("invalido");
+        return;
+    }
 
-    // Aquí usamos `db` (importado de db.js), que ya debe estar configurado con mysql2
+    const sql = "DELETE FROM registros WHERE numero_apto = ? AND codigo_qr = ?";
     db.execute(sql, [numero_apto, codigo_qr], (err, result) => {
         if (err) {
             res.status(500).send("Error al ejecutar la consulta: " + err.message);
@@ -34,6 +36,4 @@ app.get('/validar_qr', (req, res) => {
     });
 });
 
-app.listen(port, () => {
-    console.log(`✅ Servidor escuchando en http://localhost:${port}`);
-});
+module.exports = router;

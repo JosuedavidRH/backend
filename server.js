@@ -4,7 +4,6 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const db = require('./db');
 const guardarNumero = require('./guardar_numero');
-const realtime = require('./realTime');
 const validarQR = require('./validar_qr');
 const realtimeRoutes = require('./realTime');
 

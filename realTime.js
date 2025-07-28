@@ -1,4 +1,4 @@
-// realtime.js - Rutas para manejar los temporizadores en la tabla realTime
+// realtime.js - Rutas para manejar los temporizadores en la tabla realTime.
 
 const express = require('express');
 const db = require('./db'); // Asegúrate de que db.js esté configurado con variables de entorno
