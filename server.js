@@ -6,6 +6,7 @@ const db = require('./db');
 const guardarNumero = require('./guardar_numero');
 const realtime = require('./realTime');
 const validarQR = require('./validar_qr');
+const realtimeRoutes = require('./realTime');
 
 const app = express();
 
@@ -65,8 +66,8 @@ app.post('/api/register', (req, res) => {
 });
 
 // ✅ Vincular rutas adicionales
+app.use('/api/realTime', realtimeRoutes);
 app.use('/api/guardar', guardarNumero);
-app.use('/api/realtime', realtime);
 app.use('/api/validar', validarQR);
 
 // Puerto dinámico

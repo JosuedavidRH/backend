@@ -1,26 +1,12 @@
-// realtime.js - Servidor para manejar los temporizadores en la tabla realTime
+// realtime.js - Rutas para manejar los temporizadores en la tabla realTime
 
 const express = require('express');
-const cors = require('cors');
 const db = require('./db'); // Asegúrate de que db.js esté configurado con variables de entorno
 
-const app = express();
-const port = process.env.PORT || 4000; // Render define automáticamente PORT
-
-app.use(cors());
-app.use(express.json());
-
-// Test de conexión (opcional en producción)
-db.connect(err => {
-  if (err) {
-    console.error('❌ Error al conectar con la base de datos:', err);
-    return;
-  }
-  console.log('✅ Conectado a la base de datos');
-});
+const router = express.Router();
 
 // Obtener datos de realTime para un user_id
-app.get('/api/realtime/:userId', (req, res) => {
+router.get('/:userId', (req, res) => {
   const { userId } = req.params;
 
   db.query('SELECT * FROM realTime WHERE user_id = ?', [userId], (err, results) => {
@@ -33,7 +19,7 @@ app.get('/api/realtime/:userId', (req, res) => {
 });
 
 // Actualizar temporizadores de realTime para un user_id
-app.put('/api/realtime/:userId', (req, res) => {
+router.put('/:userId', (req, res) => {
   const { userId } = req.params;
   const {
     statusActual,
@@ -71,10 +57,8 @@ app.put('/api/realtime/:userId', (req, res) => {
 });
 
 // Guardar solo el temporizadorPrincipal
-app.post('/api/realtime/temporizador', (req, res) => {
+router.post('/temporizador', (req, res) => {
   const { userId, temporizadorPrincipal } = req.body;
-
-  console.log("📥 Datos recibidos:", req.body);
 
   const sql = `
     INSERT INTO realTime (user_id, temporizadorPrincipal)
@@ -91,7 +75,4 @@ app.post('/api/realtime/temporizador', (req, res) => {
   });
 });
 
-// Iniciar servidor
-app.listen(port, () => {
-  console.log(`🚀 Servidor realTime escuchando en http://localhost:${port}`);
-});
+module.exports = router;
