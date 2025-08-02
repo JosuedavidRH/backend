@@ -1,3 +1,6 @@
+//CODIGO en produccion 
+
+
 // realtime.js - Rutas para manejar los temporizadores en la tabla realTime.
 
 const express = require('express');

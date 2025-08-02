@@ -1,3 +1,5 @@
+//CODIGO de produccion 
+
 const express = require('express');
 const db = require('./db'); // Reutilizamos la conexión exportada
 
