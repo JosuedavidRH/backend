@@ -59,7 +59,7 @@ router.put('/:userId', (req, res) => {
   });
 });
 
-// Guardar solo el temporizadorPrincipal
+// Guardar el temporizadorPrincipal
 router.post('/temporizador', (req, res) => {
   const { userId, temporizadorPrincipal } = req.body;
 
@@ -77,5 +77,39 @@ router.post('/temporizador', (req, res) => {
     res.json({ success: true, message: 'Temporizador principal actualizado' });
   });
 });
+
+
+// Guardar  el statusActual
+app.post('/api/statusActual', (req, res) => {
+  const { userId, statusActual } = req.body;
+
+  if (!userId || statusActual === undefined) {
+    return res.status(400).json({
+      success: false,
+      message: 'Falta userId o statusActual'
+    });
+  }
+
+  const sql = `
+    INSERT INTO realTime (user_id, statusActual)
+    VALUES (?, ?)
+    ON DUPLICATE KEY UPDATE statusActual = VALUES(statusActual)
+  `;
+
+  db.query(sql, [userId, statusActual], (err, result) => {
+    if (err) {
+      console.error('❌ Error al guardar statusActual:', err);
+      return res.status(500).json({ success: false, message: err.message });
+    }
+    res.json({
+      success: true,
+      message: 'statusActual actualizado correctamente'
+    });
+  });
+});
+
+
+
+
 
 module.exports = router;
