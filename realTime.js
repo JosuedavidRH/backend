@@ -80,7 +80,7 @@ router.post('/temporizador', (req, res) => {
 
 
 // Guardar  el statusActual
-router.post('/api/statusActual', (req, res) => {
+router.post('/statusActual', (req, res) => {
   const { userId, statusActual } = req.body;
 
   if (!userId || statusActual === undefined) {
