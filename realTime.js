@@ -91,7 +91,7 @@ router.post('/statusActual', (req, res) => {
   }
 
   const sql = `
-    INSERT INTO realTime (user_id, statusActual)
+    INSERT INTO realtime (user_id, statusActual)
     VALUES (?, ?)
     ON DUPLICATE KEY UPDATE statusActual = VALUES(statusActual)
   `;
