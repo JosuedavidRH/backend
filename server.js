@@ -19,6 +19,9 @@ app.use(cors({
 
 app.use(bodyParser.json());
 
+// 👉 Permitir que sendBeacon mande JSON como string
+app.use(express.text({ type: 'application/json' }));
+
 // Endpoint de inicio de sesión
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
