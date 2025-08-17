@@ -8,6 +8,7 @@ const db = require('./db'); // Asegúrate de que db.js esté configurado con var
 
 const router = express.Router();
 
+
 // Obtener datos de realTime para un user_id
 router.get('/:userId', (req, res) => {
   const { userId } = req.params;
