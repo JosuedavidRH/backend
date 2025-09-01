@@ -3,10 +3,28 @@
 
 // realtime.js - Rutas para manejar los temporizadores en la tabla realTime.
 
+
 const express = require('express');
 const db = require('./db'); // Asegúrate de que db.js esté configurado con variables de entorno
 
 const router = express.Router();
+
+
+// 📌 Middleware para soportar sendBeacon que envía string en vez de JSON
+router.use(express.text({ type: 'application/json' }));
+
+// Helper para parsear body si viene como string
+function parseBody(req) {
+  let body = req.body;
+  if (typeof body === 'string') {
+    try {
+      body = JSON.parse(body);
+    } catch (e) {
+      body = {};
+    }
+  }
+  return body;
+}
 
 
 // Obtener datos de realTime para un user_id
@@ -22,16 +40,19 @@ router.get('/:userId', (req, res) => {
   });
 });
 
+
 // Actualizar temporizadores de realTime para un user_id
 router.put('/:userId', (req, res) => {
   const { userId } = req.params;
+  const body = parseBody(req);
+
   const {
     statusActual,
     temporizadorPrincipal,
     temporizadorFactura1,
     temporizadorFactura2,
     temporizadorFactura3
-  } = req.body;
+  } = body;
 
   const sql = `
     UPDATE realtime SET 
@@ -60,14 +81,19 @@ router.put('/:userId', (req, res) => {
   });
 });
 
+
 // Guardar el temporizadorPrincipal
 router.post('/temporizador', (req, res) => {
-  const { userId, temporizadorPrincipal } = req.body;
+  const body = parseBody(req);
+  const { userId, temporizadorPrincipal } = body;
+
+  console.log("📥 Recibido en /temporizador:", body);
 
   const sql = `
     INSERT INTO realtime (user_id, temporizadorPrincipal)
     VALUES (?, ?)
-    ON DUPLICATE KEY UPDATE temporizadorPrincipal = VALUES(temporizadorPrincipal)
+    ON DUPLICATE KEY UPDATE temporizadorPrincipal = VALUES(temporizadorPrincipal),
+    updated_at = NOW()
   `;
 
   db.query(sql, [userId, temporizadorPrincipal], (err, result) => {
@@ -80,9 +106,10 @@ router.post('/temporizador', (req, res) => {
 });
 
 
-// Guardar  el statusActual
+// Guardar el statusActual
 router.post('/statusActual', (req, res) => {
-  const { userId, statusActual } = req.body;
+  const body = parseBody(req);
+  const { userId, statusActual } = body;
 
   if (!userId || statusActual === undefined) {
     return res.status(400).json({
@@ -91,10 +118,13 @@ router.post('/statusActual', (req, res) => {
     });
   }
 
+  console.log("📥 Recibido en /statusActual:", body);
+
   const sql = `
     INSERT INTO realtime (user_id, statusActual)
     VALUES (?, ?)
-    ON DUPLICATE KEY UPDATE statusActual = VALUES(statusActual)
+    ON DUPLICATE KEY UPDATE statusActual = VALUES(statusActual),
+    updated_at = NOW()
   `;
 
   db.query(sql, [userId, statusActual], (err, result) => {
@@ -108,9 +138,6 @@ router.post('/statusActual', (req, res) => {
     });
   });
 });
-
-
-
 
 
 module.exports = router;
