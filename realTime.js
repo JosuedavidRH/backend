@@ -3,6 +3,7 @@
 
 // realtime.js - Rutas para manejar los temporizadores en la tabla realTime.
 
+
 const express = require('express');
 const db = require('./db'); // Asegúrate de que db.js esté configurado con variables de entorno
 
@@ -80,6 +81,105 @@ router.post('/temporizador', (req, res) => {
 });
 
 
+// Guardar temporizadorFactura1
+router.post('/temporizadorFactura1', (req, res) => {
+  let body = req.body;
+  if (typeof body === 'string') {
+    try { body = JSON.parse(body); } catch (e) {
+      return res.status(400).json({ success: false, message: 'JSON inválido' });
+    }
+  }
+
+  const { userId, temporizadorFactura1 } = body;
+  if (!userId || temporizadorFactura1 === undefined) {
+    return res.status(400).json({ success: false, message: 'Falta userId o temporizadorFactura1' });
+  }
+
+  const sql = `
+    INSERT INTO realtime (user_id, temporizadorFactura1)
+    VALUES (?, ?)
+    ON DUPLICATE KEY UPDATE temporizadorFactura1 = VALUES(temporizadorFactura1),
+    updated_at = NOW()
+  `;
+
+  db.query(sql, [userId, temporizadorFactura1], (err, result) => {
+    if (err) {
+      console.error('❌ Error al guardar temporizadorFactura1:', err);
+      return res.status(500).json({ success: false, error: err.message });
+    }
+    res.json({ success: true, message: 'temporizadorFactura1 actualizado' });
+  });
+});
+
+
+// Guardar temporizadorFactura2
+router.post('/temporizadorFactura2', (req, res) => {
+  let body = req.body;
+  if (typeof body === 'string') {
+    try { body = JSON.parse(body); } catch (e) {
+      return res.status(400).json({ success: false, message: 'JSON inválido' });
+    }
+  }
+
+  const { userId, temporizadorFactura2 } = body;
+
+  console.log("📥 Datos recibidos (Factura2):", body);
+
+  if (!userId || temporizadorFactura2 === undefined) {
+    return res.status(400).json({ success: false, message: 'Falta userId o temporizadorFactura2' });
+  }
+
+  const sql = `
+    INSERT INTO realtime (user_id, temporizadorFactura2)
+    VALUES (?, ?)
+    ON DUPLICATE KEY UPDATE temporizadorFactura2 = VALUES(temporizadorFactura2),
+    updated_at = NOW()
+  `;
+
+  db.query(sql, [userId, temporizadorFactura2], (err, result) => {
+    if (err) {
+      console.error('❌ Error al guardar temporizadorFactura2:', err);
+      return res.status(500).json({ success: false, error: err.message });
+    }
+    res.json({ success: true, message: 'temporizadorFactura2 actualizado' });
+  });
+});
+
+
+// Guardar temporizadorFactura3
+router.post('/temporizadorFactura3', (req, res) => {
+  let body = req.body;
+  if (typeof body === 'string') {
+    try { body = JSON.parse(body); } catch (e) {
+      return res.status(400).json({ success: false, message: 'JSON inválido' });
+    }
+  }
+
+  const { userId, temporizadorFactura3 } = body;
+
+  console.log("📥 Datos recibidos (Factura3):", body);
+
+  if (!userId || temporizadorFactura3 === undefined) {
+    return res.status(400).json({ success: false, message: 'Falta userId o temporizadorFactura3' });
+  }
+
+  const sql = `
+    INSERT INTO realtime (user_id, temporizadorFactura3)
+    VALUES (?, ?)
+    ON DUPLICATE KEY UPDATE temporizadorFactura3 = VALUES(temporizadorFactura3),
+    updated_at = NOW()
+  `;
+
+  db.query(sql, [userId, temporizadorFactura3], (err, result) => {
+    if (err) {
+      console.error('❌ Error al guardar temporizadorFactura3:', err);
+      return res.status(500).json({ success: false, error: err.message });
+    }
+    res.json({ success: true, message: 'temporizadorFactura3 actualizado' });
+  });
+});
+
+
 // Guardar  el statusActual
 router.post('/statusActual', (req, res) => {
   const { userId, statusActual } = req.body;
@@ -108,9 +208,6 @@ router.post('/statusActual', (req, res) => {
     });
   });
 });
-
-
-
 
 
 module.exports = router;
