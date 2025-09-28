@@ -13,7 +13,10 @@ const app = express();
 
 // Permitir múltiples orígenes (como el frontend en Vercel)
 app.use(cors({
-  origin: ['https://kiosko-seven.vercel.app'],
+  origin: [
+    'https://kiosko-seven.vercel.app',
+    'https://monumental-bavarois-56902a.netlify.app'
+  ],
   credentials: true
 }));
 
