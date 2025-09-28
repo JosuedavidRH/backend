@@ -1,9 +1,5 @@
-//CODIGO en produccion 
-
 // backend/server.js
 const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
 const db = require('./db');
 const guardarNumero = require('./guardar_numero');
 const validarQR = require('./validar_qr');
@@ -11,19 +7,31 @@ const realtimeRoutes = require('./realTime');
 
 const app = express();
 
-// Permitir múltiples orígenes (como el frontend en Vercel)
-app.use(cors({
-  origin: [
-    'https://kiosko-seven.vercel.app',
-    'https://monumental-bavarois-56902a.netlify.app'
-  ],
-  credentials: true
-}));
+// ✅ Configuración CORS manual para manejar preflight y múltiples orígenes
+const allowedOrigins = [
+  'https://kiosko-seven.vercel.app',
+  'https://monumental-bavarois-56902a.netlify.app'
+];
 
-app.use(bodyParser.json());
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
 
-// 👉 Permitir que sendBeacon mande JSON como string
-app.use(express.text({ type: 'application/json' }));
+  // Responder OPTIONS (preflight) inmediatamente
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+
+  next();
+});
+
+// ✅ Middleware para parsear JSON
+app.use(express.json());
 
 // Endpoint de inicio de sesión
 app.post('/api/login', (req, res) => {
