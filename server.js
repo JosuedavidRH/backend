@@ -10,7 +10,9 @@ const app = express();
 // ✅ Configuración CORS manual para manejar preflight y múltiples orígenes
 const allowedOrigins = [
   'https://kiosko-seven.vercel.app',
-  'https://monumental-bavarois-56902a.netlify.app'
+  'https://monumental-bavarois-56902a.netlify.app',
+  'https://kiosko-js-nativo-vxq3.vercel.app'
+
 ];
 
 app.use((req, res, next) => {
