@@ -113,7 +113,6 @@ router.post('/statusActual', (req, res) => {
 
 
 
-
 router.post('/cerrarSesion', (req, res) => {
   let body = req.body;
   if (typeof body === "string") {
@@ -130,7 +129,6 @@ router.post('/cerrarSesion', (req, res) => {
     temporizadorFactura1,
     temporizadorFactura2,
     temporizadorFactura3,
-    statusActual,
   } = body;
 
   if (!userId) {
@@ -145,15 +143,13 @@ router.post('/cerrarSesion', (req, res) => {
       temporizadorPrincipal,
       temporizadorFactura1,
       temporizadorFactura2,
-      temporizadorFactura3,
-      statusActual
-    ) VALUES (?, ?, ?, ?, ?, ?)
+      temporizadorFactura3
+    ) VALUES (?, ?, ?, ?, ?)
     ON DUPLICATE KEY UPDATE
       temporizadorPrincipal = VALUES(temporizadorPrincipal),
       temporizadorFactura1 = VALUES(temporizadorFactura1),
       temporizadorFactura2 = VALUES(temporizadorFactura2),
       temporizadorFactura3 = VALUES(temporizadorFactura3),
-      statusActual = VALUES(statusActual),
       updated_at = NOW()
   `;
 
@@ -165,7 +161,6 @@ router.post('/cerrarSesion', (req, res) => {
       temporizadorFactura1 ?? 0,
       temporizadorFactura2 ?? 0,
       temporizadorFactura3 ?? 0,
-      statusActual ?? 0,
     ],
     (err, result) => {
       if (err) {
@@ -179,9 +174,6 @@ router.post('/cerrarSesion', (req, res) => {
     }
   );
 });
-
-
-
 
 
 
