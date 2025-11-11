@@ -87,7 +87,7 @@ app.use('/api/realTime', realtimeRoutes);
 app.use('/api/guardar', guardarNumero);
 app.use('/api/validar', validarQR);
 
-// ✅ Endpoint para enviar mensaje de WhatsApp con Twilio
+// ✅ Endpoint para enviar mensaje de WhatsApp con Twilio.
 app.post('/api/enviar-whatsapp', async (req, res) => {
   // Cargar variables de entorno
   require('dotenv').config();
