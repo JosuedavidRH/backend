@@ -14,7 +14,7 @@ const twilio = require("twilio");
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;
   const client = require("twilio")(accountSid, authToken);
-  const twilioFrom = "whatsapp:+14155238886"; 
+  const twilioFrom = "whatsapp:+573205549400"; //  número Twilio sender
 
 
 const app = express();
@@ -100,38 +100,35 @@ app.use('/api/guardar', guardarNumero);
 app.use('/api/validar', validarQR);
 
 
- 
 
-// ✅ Endpoint para programar mensaje de WhatsApp
-app.post("/api/enviar-whatsapp", async (req, res) => {
-  const { to, mensaje } = req.body;
+// ✅ Endpoint para programar mensaje de WhatsApp con template aprobado
+app.post("/api/enviar-factura-whatsapp", async (req, res) => {
+  const { to } = req.body; // número destino
 
-  if (!to || !mensaje) {
-    return res.status(400).json({ success: false, message: "Faltan parámetros: to o mensaje" });
+  if (!to) {
+    return res.status(400).json({ success: false, message: "Faltan parámetros: to" });
   }
 
-// ⏰ Cambiar tiempo de espera → 20 minutos
-  const sendTime = Date.now() + 20 * 60 * 1000; // 20 minutos en milisegundos
+  // ⏰ Cambiar tiempo de espera → 1 minutos
+  const sendTime = Date.now() + 1 * 60 * 1000; // 1 minuto en milisegundos
 
- 
-
-  const query = "INSERT INTO scheduled_messages (to_number, mensaje, send_time, enviado) VALUES (?, ?, ?, 0)";
-  db.query(query, [to, mensaje, sendTime], (err, result) => {
+  const query = "INSERT INTO scheduled_messages (to_number, template_sid, send_time, enviado) VALUES (?, ?, ?, 0)";
+  db.query(query, [to, "HX1452ce97072fedd790870c78618257d4", sendTime], (err, result) => {
     if (err) {
       console.error("❌ Error al guardar mensaje programado:", err);
       return res.status(500).json({ success: false, message: "Error en BD" });
     }
 
-    console.log(`🕒 Mensaje programado para ${to} en 20 minutos`);
+    console.log(`🕒 Mensaje de factura programado para ${to} en 1 minuto`);
     res.json({
       success: true,
-      message: "Mensaje programado para envío en 20 minutos",
+      message: "Mensaje de factura programado para envío en 1 minuto",
       id: result.insertId,
     });
   });
 });
 
-// 🕒 Cron que revisa mensajes cada 30 segundos
+// 🕒 Cron que revisa mensajes cada 30 segundos (respetando la lógica original)
 cron.schedule("*/30 * * * * *", async () => {
   const ahora = Date.now();
 
@@ -144,11 +141,20 @@ cron.schedule("*/30 * * * * *", async () => {
 
       for (const msg of results) {
         try {
-          const message = await client.messages.create({
-            from: twilioFrom, // ✅ nuevo número
-            to: `whatsapp:${msg.to_number}`,
-            body: msg.mensaje,
-          });
+          // Si el mensaje tiene template_sid, usamos plantilla; si no, body normal
+          const options = msg.template_sid
+            ? {
+                from: twilioFrom,
+                to: `whatsapp:${msg.to_number}`,
+                contentSid: msg.template_sid
+              }
+            : {
+                from: twilioFrom,
+                to: `whatsapp:${msg.to_number}`,
+                body: msg.mensaje
+              };
+
+          const message = await client.messages.create(options);
 
           console.log(`✅ Enviado a ${msg.to_number} → SID: ${message.sid}`);
 
@@ -161,49 +167,53 @@ cron.schedule("*/30 * * * * *", async () => {
   );
 });
 
-// --- 1️⃣ Enviar código de verificación por WhatsApp ---
-app.post("/api/send-code", async (req, res) => {
-  const { username } = req.body;
+
+// --- 3️⃣ Enviar código de verificación por SMS ---
+app.post("/api/send-code-sms", async (req, res) => {
+  const { username } = req.body; // número destino en Colombia sin +57
 
   if (!username)
     return res.status(400).json({ success: false, message: "Número requerido" });
 
   try {
     const codigo = Math.floor(100000 + Math.random() * 900000).toString();
-    const expira = Date.now() + 3 * 60 * 1000;
+    const expira = Date.now() + 3 * 60 * 1000; // 3 minutos
 
     db.query(
       "INSERT INTO verification_codes (username, codigo, expira, usado) VALUES (?, ?, ?, 0)",
       [username, codigo, expira],
-      (err) => {
+      async (err) => {
         if (err) {
           console.error("❌ Error al guardar código en BD:", err);
           return res.status(500).json({ success: false, message: "Error al guardar código" });
         }
 
-        const mensaje = `Tu código de verificación es: *${codigo}* (válido por 3 minutos)`;
+        const mensaje = `Tu código de verificación es: ${codigo} (válido por 3 minutos)`;
 
-        client.messages
-          .create({
-            from: twilioFrom, // ✅ nuevo número Twilio
-            to: `whatsapp:+57${username}`,
-            body: mensaje,
-          })
-          .then((message) => {
-            console.log("✅ Código enviado:", codigo, "SID:", message.sid);
-            res.json({ success: true, message: "Código enviado", sid: message.sid });
-          })
-          .catch((error) => {
-            console.error("❌ Error al enviar mensaje:", error);
-            res.status(500).json({ success: false, message: error.message });
+        try {
+          const message = await client.messages.create({
+            from: "+13142484618", // tu número Twilio con SMS
+            to: `+57${username}`,
+            body: mensaje
           });
+
+          console.log("✅ Código SMS enviado:", codigo, "SID:", message.sid);
+          res.json({ success: true, message: "Código enviado", sid: message.sid });
+
+        } catch (error) {
+          console.error("❌ Error al enviar SMS:", error);
+          res.status(500).json({ success: false, message: error.message });
+        }
       }
     );
+
   } catch (error) {
     console.error("❌ Error general:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
+
+ 
 
 // --- 2️⃣ Verificar código ---
 app.post("/api/verify-code", (req, res) => {
