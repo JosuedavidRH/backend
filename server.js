@@ -109,8 +109,8 @@ app.post("/api/enviar-factura-whatsapp", async (req, res) => {
     return res.status(400).json({ success: false, message: "Faltan parámetros: to" });
   }
 
-  // ⏰ Cambiar tiempo de espera → 1 minutos
-  const sendTime = Date.now() + 1 * 60 * 1000; // 1 minuto en milisegundos
+  // ⏰ Cambiar tiempo de espera → 20 minutos
+  const sendTime = Date.now() + 20 * 60 * 1000; // 20 minutos en milisegundos
 
   // <-- Cambié el INSERT para incluir 'mensaje' como '' (cadena vacía)
   const query = "INSERT INTO scheduled_messages (to_number, mensaje, template_sid, send_time, enviado) VALUES (?, ?, ?, ?, 0)";
@@ -120,10 +120,10 @@ app.post("/api/enviar-factura-whatsapp", async (req, res) => {
       return res.status(500).json({ success: false, message: "Error en BD" });
     }
 
-    console.log(`🕒 Mensaje de factura programado para ${to} en 1 minuto`);
+    console.log(`🕒 Mensaje de factura programado para ${to} en 20 minutos`);
     res.json({
       success: true,
-      message: "Mensaje de factura programado para envío en 1 minuto",
+      message: "Mensaje de factura programado para envío en 20 minutos",
       id: result.insertId,
     });
   });
