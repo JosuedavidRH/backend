@@ -112,8 +112,9 @@ app.post("/api/enviar-factura-whatsapp", async (req, res) => {
   // ⏰ Cambiar tiempo de espera → 1 minutos
   const sendTime = Date.now() + 1 * 60 * 1000; // 1 minuto en milisegundos
 
-  const query = "INSERT INTO scheduled_messages (to_number, template_sid, send_time, enviado) VALUES (?, ?, ?, 0)";
-  db.query(query, [to, "HX1452ce97072fedd790870c78618257d4", sendTime], (err, result) => {
+  // <-- Cambié el INSERT para incluir 'mensaje' como '' (cadena vacía)
+  const query = "INSERT INTO scheduled_messages (to_number, mensaje, template_sid, send_time, enviado) VALUES (?, ?, ?, ?, 0)";
+  db.query(query, [to, '', "HX1452ce97072fedd790870c78618257d4", sendTime], (err, result) => {
     if (err) {
       console.error("❌ Error al guardar mensaje programado:", err);
       return res.status(500).json({ success: false, message: "Error en BD" });
@@ -127,6 +128,7 @@ app.post("/api/enviar-factura-whatsapp", async (req, res) => {
     });
   });
 });
+
 
 // 🕒 Cron que revisa mensajes cada 30 segundos (respetando la lógica original)
 cron.schedule("*/30 * * * * *", async () => {
