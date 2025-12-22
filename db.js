@@ -1,21 +1,30 @@
-// codigo en produccion 
+// backend/db.js  (PRODUCCIÓN ESTABLE)
 
 const mysql = require('mysql2');
 
-const connection = mysql.createConnection({
+const pool = mysql.createPool({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME
+  database: process.env.DB_NAME,
+
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0
 });
 
-connection.connect((err) => {
+// Verificación inicial (opcional pero recomendable)
+pool.getConnection((err, connection) => {
   if (err) {
-    console.error('Error de conexión: ' + err.stack);
-    return;
+    console.error('❌ Error conectando a MySQL:', err);
+  } else {
+    console.log('✅ Pool MySQL conectado correctamente');
+    connection.release();
   }
-  console.log('Conectado a la base de datos');
 });
 
-module.exports = connection;
+module.exports = pool;
