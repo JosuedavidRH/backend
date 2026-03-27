@@ -109,12 +109,13 @@ app.post("/api/enviar-factura-whatsapp", async (req, res) => {
     return res.status(400).json({ success: false, message: "Faltan parámetros: to" });
   }
 
-  // ⏰ Cambiar tiempo de espera → 20 minutos
-  const sendTime = Date.now() + 20 * 60 * 1000; // 20 minutos en milisegundos
+  // ⏰  tiempo de espera → 3 horas
 
-  // <-- Cambié el INSERT para incluir 'mensaje' como '' (cadena vacía)
+ const sendTime = Date.now() + 3 * 60 * 60 * 1000; // 3 horas
+
+  // <-- Aqui se pone el token que selecciona "el mensaje twilio" que sera enviado al whatsApp
   const query = "INSERT INTO scheduled_messages (to_number, mensaje, template_sid, send_time, enviado) VALUES (?, ?, ?, ?, 0)";
-  db.query(query, [to, '', "HX1452ce97072fedd790870c78618257d4", sendTime], (err, result) => {
+  db.query(query, [to, '', "HX5748589e6c7430ba1ebb16133d58c50f", sendTime], (err, result) => {
     if (err) {
       console.error("❌ Error al guardar mensaje programado:", err);
       return res.status(500).json({ success: false, message: "Error en BD" });
@@ -130,8 +131,8 @@ app.post("/api/enviar-factura-whatsapp", async (req, res) => {
 });
 
 
-// 🕒 Cron que revisa mensajes cada 30 segundos (respetando la lógica original)
-cron.schedule("*/30 * * * * *", async () => {
+// 🕒 Cron que revisa mensajes cada 5 minutos
+cron.schedule("*/5 * * * *", async () => {
   const ahora = Date.now();
 
   db.query(

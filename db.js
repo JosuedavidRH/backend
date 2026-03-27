@@ -1,4 +1,4 @@
-// backend/db.js  (PRODUCCIÓN ESTABLE)
+// backend/db.js  (PRODUCCIÓN ESTABLE se integro "mysql.createPool" por el uso de node-cron)
 
 const mysql = require('mysql2');
 
