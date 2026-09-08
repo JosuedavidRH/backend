@@ -171,50 +171,95 @@ cron.schedule("*/5 * * * *", async () => {
 });
 
 
-// --- 3️⃣ Enviar código de verificación por SMS ---
-app.post("/api/send-code-sms", async (req, res) => {
+
+// --- 3️⃣ Enviar código de verificación por WhatsApp ---
+app.post("/api/send-code-whatsapp", async (req, res) => {
   const { username } = req.body; // número destino en Colombia sin +57
 
-  if (!username)
-    return res.status(400).json({ success: false, message: "Número requerido" });
+  if (!username) {
+    return res.status(400).json({
+      success: false,
+      message: "Número requerido"
+    });
+  }
 
   try {
+    // Generar código de 6 dígitos
     const codigo = Math.floor(100000 + Math.random() * 900000).toString();
-    const expira = Date.now() + 3 * 60 * 1000; // 3 minutos
+
+    // Expira en 3 minutos
+    const expira = Date.now() + 3 * 60 * 1000;
 
     db.query(
       "INSERT INTO verification_codes (username, codigo, expira, usado) VALUES (?, ?, ?, 0)",
       [username, codigo, expira],
       async (err) => {
+
         if (err) {
           console.error("❌ Error al guardar código en BD:", err);
-          return res.status(500).json({ success: false, message: "Error al guardar código" });
-        }
 
-        const mensaje = `Tu código de verificación es: ${codigo} (válido por 3 minutos)`;
+          return res.status(500).json({
+            success: false,
+            message: "Error al guardar código"
+          });
+        }
 
         try {
           const message = await client.messages.create({
-            from: "+13142484618", // tu número Twilio con SMS
-            to: `+57${username}`,
-            body: mensaje
+            // Número Twilio configurado arriba
+            from: twilioFrom,
+
+            // Número colombiano
+            to: `whatsapp:+57${username}`,
+
+            // Content Template de Verification Codes
+            contentSid: "HX8d7573f223a497b4222f8fe789fb1a39",
+
+            // Variable {{1}} de la plantilla
+            contentVariables: JSON.stringify({
+              "1": codigo
+            })
           });
 
-          console.log("✅ Código SMS enviado:", codigo, "SID:", message.sid);
-          res.json({ success: true, message: "Código enviado", sid: message.sid });
+          console.log(
+            "✅ Código WhatsApp enviado:",
+            codigo,
+            "SID:",
+            message.sid
+          );
+
+          return res.json({
+            success: true,
+            message: "Código enviado por WhatsApp",
+            sid: message.sid
+          });
 
         } catch (error) {
-          console.error("❌ Error al enviar SMS:", error);
-          res.status(500).json({ success: false, message: error.message });
+
+          console.error(
+            "❌ Error al enviar WhatsApp:",
+            error.message
+          );
+
+          return res.status(500).json({
+            success: false,
+            message: error.message
+          });
         }
       }
     );
 
   } catch (error) {
+
     console.error("❌ Error general:", error);
-    res.status(500).json({ success: false, error: error.message });
+
+    return res.status(500).json({
+      success: false,
+      error: error.message
+    });
   }
 });
+
 
  
 
