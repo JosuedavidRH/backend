@@ -23,7 +23,9 @@ const app = express();
 const allowedOrigins = [
   'https://kiosko-seven.vercel.app',
   'https://monumental-bavarois-56902a.netlify.app',
-  'https://kiosko-js-nativo-vxq3.vercel.app'
+  'https://kiosko-js-nativo-vxq3.vercel.app',
+  'http://localhost:3000'
+
 
 ];
 
