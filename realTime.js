@@ -3,6 +3,7 @@
 
 // realtime.js - Rutas para manejar los temporizadores en la tabla realTime.
 
+// backend/realtime.js   analiza  el codigo de produccion pero no modifiques nada
 
 const express = require('express');
 const db = require('./db'); // Asegúrate de que db.js esté configurado con variables de entorno
@@ -116,6 +117,46 @@ router.post("/temporizadorFactura1", (req, res) => {
   });
 });
 
+
+
+
+
+
+
+// Guardar temporizadorFactura2
+router.post("/temporizadorFactura2", (req, res) => {
+  let body = req.body;
+  if (typeof body === "string") {
+    try {
+      body = JSON.parse(body);
+    } catch (e) {
+      return res.status(400).json({ success: false, message: "JSON inválido" });
+    }
+  }
+
+  const { userId, temporizadorFactura2 } = body;
+
+  if (!userId || temporizadorFactura2 === undefined) {
+    return res.status(400).json({
+      success: false,
+      message: "Falta userId o temporizadorFactura2"
+    });
+  }
+
+  const sql = `
+    INSERT INTO realtime (user_id, temporizadorFactura2)
+    VALUES (?, ?)
+    ON DUPLICATE KEY UPDATE temporizadorFactura2 = VALUES(temporizadorFactura2), updated_at = NOW()
+  `;
+
+  db.query(sql, [userId, temporizadorFactura2], (err, result) => {
+    if (err) {
+      console.error("❌ Error al guardar temporizadorFactura2:", err);
+      return res.status(500).json({ success: false, error: err.message });
+    }
+    res.json({ success: true, message: "temporizadorFactura2 actualizado correctamente" });
+  });
+});
 
 
 
